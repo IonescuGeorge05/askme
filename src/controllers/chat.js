@@ -17,6 +17,14 @@ const chatController = {
       return res.status(400).json({ error: 'Message is required' });
     }
 
+    if (!config.openai.apiKey) {
+      logger.error('OpenAI API key is not configured');
+      return res.status(500).json({ 
+        error: 'Server configuration error',
+        details: 'OpenAI API key is not configured. Please check your .env file.'
+      });
+    }
+
     try {
       logger.info('Calling OpenAI API', { 
         model: config.openai.model,
@@ -40,6 +48,32 @@ const chatController = {
         error: error.message,
         stack: error.stack 
       });
+
+      // Handle specific error cases
+      if (error.response) {
+        switch (error.response.status) {
+          case 401:
+            return res.status(500).json({ 
+              error: 'Authentication error',
+              details: 'Invalid or missing OpenAI API key. Please check your .env file.'
+            });
+          case 429:
+            return res.status(500).json({ 
+              error: 'Rate limit exceeded',
+              details: 'You have exceeded your OpenAI API rate limit. Please try again later.'
+            });
+          default:
+            const errorMessage = error.response.data && 
+                               error.response.data.error && 
+                               error.response.data.error.message || 
+                               error.message;
+            return res.status(500).json({ 
+              error: 'OpenAI API error',
+              details: errorMessage
+            });
+        }
+      }
+
       res.status(500).json({ 
         error: 'Failed to process chat request',
         details: error.message 
