@@ -1,31 +1,141 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>ChatGPT în Română</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            line-height: 1.6;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .chat-container {
+            margin-top: 30px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .chat-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .chat-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .chat-button:hover {
+            background-color: #0056b3;
+        }
+        .chat-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-  <h1>ChatGPT în Limba Română</h1>
-  <textarea id="input" rows="4" cols="50" placeholder="Scrie un mesaj..."></textarea>
-  <button onclick="sendMessage()">Trimite</button>
-  <pre id="response"></pre>
+    <h1>Chat API Server</h1>
+    <p>This is a simple chat API server. You can test it using the form below or send a POST request to /api/chat with a JSON body containing a "message" field.</p>
+    
+    <div class="chat-container">
+        <h2>Test Chat</h2>
+        <form class="chat-form" id="chatForm">
+            <input type="text" class="chat-input" id="messageInput" placeholder="Type your message..." required>
+            <button type="submit" class="chat-button" id="sendButton">Send</button>
+        </form>
+        <div class="response" id="response"></div>
+        <div class="error" id="error" style="display: none;"></div>
+    </div>
 
-  <script>
-    async function sendMessage() {
-      const message = document.getElementById("input").value;
-      const response = await fetch("http://localhost:3000/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
-      });
-      const data = await response.json();
-      document.getElementById("response").textContent = data.reply;
-    }
-      const response = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
-    });
-  </script>
+    <p>Example using curl:</p>
+    <pre>curl -X POST http://localhost:3000/api/chat -H "Content-Type: application/json" -d '{"message":"Hello!"}'</pre>
+
+    <script>
+        const form = document.getElementById('chatForm');
+        const messageInput = document.getElementById('messageInput');
+        const responseDiv = document.getElementById('response');
+        const errorDiv = document.getElementById('error');
+        const sendButton = document.getElementById('sendButton');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = messageInput.value;
+
+            // Clear previous errors and responses
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            responseDiv.textContent = 'Loading...';
+            sendButton.disabled = true;
+
+            try {
+                console.log('Sending request:', { message });
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
+
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (!response.ok) {
+                    throw new Error(data.error || data.details || 'Failed to get response');
+                }
+
+                responseDiv.textContent = data.reply;
+            } catch (error) {
+                console.error('Error:', error);
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = `Error: ${error.message}`;
+                responseDiv.textContent = '';
+            } finally {
+                sendButton.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>
