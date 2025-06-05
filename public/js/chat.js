@@ -1,44 +1,58 @@
 const form = document.getElementById('chatForm');
 const messageInput = document.getElementById('messageInput');
-const responseDiv = document.getElementById('response');
-const errorDiv = document.getElementById('error');
+const responseDiv = document.getElementById('responseDiv');
+const errorDiv = document.getElementById('errorDiv');
 const sendButton = document.getElementById('sendButton');
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const message = messageInput.value;
+    const message = messageInput.value.trim();
+    if (!message) return;
 
-    // Clear previous errors and responses
-    errorDiv.style.display = 'none';
-    errorDiv.textContent = '';
-    responseDiv.textContent = 'Loading...';
+    // Disable input and button while processing
+    messageInput.disabled = true;
     sendButton.disabled = true;
 
+    // Clear previous error
+    errorDiv.textContent = '';
+
+    // Add user message to chat
+    const userMessageElement = document.createElement('div');
+    userMessageElement.className = 'message user-message';
+    userMessageElement.textContent = message;
+    responseDiv.appendChild(userMessageElement);
+
+    // Clear input
+    messageInput.value = '';
+
     try {
-        console.log('Sending request:', { message });
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ message })
+            body: JSON.stringify({ message }),
         });
 
-        console.log('Response status:', response.status);
         const data = await response.json();
         console.log('Response data:', data);
 
-        if (!response.ok) {
-            throw new Error(data.error || data.details || 'Failed to get response');
+        if (response.ok) {
+            // Add bot message to chat
+            const botMessageElement = document.createElement('div');
+            botMessageElement.className = 'message bot-message';
+            botMessageElement.textContent = data.reply;
+            responseDiv.appendChild(botMessageElement);
+        } else {
+            errorDiv.textContent = data.error || 'An error occurred';
         }
-
-        responseDiv.textContent = data.reply;
     } catch (error) {
         console.error('Error:', error);
-        errorDiv.style.display = 'block';
-        errorDiv.textContent = `Error: ${error.message}`;
-        responseDiv.textContent = '';
+        errorDiv.textContent = 'Failed to send message. Please try again.';
     } finally {
+        // Re-enable input and button
+        messageInput.disabled = false;
         sendButton.disabled = false;
+        messageInput.focus();
     }
 }); 

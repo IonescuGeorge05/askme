@@ -3,94 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat API</title>
+    <title>ChatGPT Clone</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #343541;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
         }
-        h1 {
-            color: #333;
+        .chat-header {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
         }
-        p {
-            line-height: 1.6;
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #444654;
+            border-radius: 8px;
         }
-        pre {
-            background-color: #f5f5f5;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #2d2d3a;
         }
-        .chat-container {
-            margin-top: 30px;
-            border: 1px solid #ddd;
-            padding: 20px;
-            border-radius: 5px;
+        .user-message {
+            background-color: #343541;
+        }
+        .bot-message {
+            background-color: #444654;
         }
         .chat-form {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
         }
-        .chat-input {
+        #messageInput {
             flex: 1;
             padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .chat-button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            border-radius: 8px;
+            background-color: #40414f;
+            color: #fff;
             font-size: 16px;
         }
-        .chat-button:hover {
-            background-color: #0056b3;
+        #sendButton {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #10a37f;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
-        .chat-button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
+        #sendButton:hover {
+            background-color: #0d8c6d;
         }
-        .response {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            white-space: pre-wrap;
-        }
-        .error {
-            color: #dc3545;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
+        #errorDiv {
+            color: #ff6b6b;
+            margin-top: 10px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <h1>Chat API Server</h1>
-    <p>This is a simple chat API server. You can test it using the form below or send a POST request to /api/chat with a JSON body containing a "message" field.</p>
-    
     <div class="chat-container">
-        <h2>Test Chat</h2>
-        <form class="chat-form" id="chatForm">
-            <input type="text" class="chat-input" id="messageInput" placeholder="Type your message..." required>
-            <button type="submit" class="chat-button" id="sendButton">Send</button>
+        <div class="chat-header">ChatGPT Clone</div>
+        <div class="chat-messages" id="responseDiv"></div>
+        <form id="chatForm" class="chat-form">
+            <input type="text" id="messageInput" placeholder="Type your message here..." required>
+            <button type="submit" id="sendButton">Send</button>
         </form>
-        <div class="response" id="response"></div>
-        <div class="error" id="error" style="display: none;"></div>
+        <div id="errorDiv"></div>
     </div>
-
-    <p>Example using curl:</p>
-    <pre>curl -X POST http://localhost:3000/api/chat -H "Content-Type: application/json" -d '{"message":"Hello!"}'</pre>
-
     <script src="/js/chat.js"></script>
 </body>
 </html>
